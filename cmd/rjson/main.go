@@ -12,7 +12,7 @@ import (
 	"flag"
 	"fmt"
 	"io"
-	"github.com/rogpeppe/rjson"
+	"github.com/mantyr/rjson"
 	"os"
 )
 

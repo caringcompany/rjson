@@ -7,7 +7,7 @@ package rjson_test
 import (
 	"fmt"
 	"io"
-	"github.com/rogpeppe/rjson"
+	"github.com/mantyr/rjson"
 	"log"
 	"os"
 	"strings"

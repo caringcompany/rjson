@@ -85,6 +85,9 @@ type scanner struct {
 	// on a 64-bit Mac Mini, and it's nicer to read.
 	step func(*scanner, int) int
 
+	// Quote is a double or single quote character
+	quote int
+
 	// Reached end of top-level value.
 	endTop bool
 
@@ -217,6 +220,7 @@ func stateBeginValue(s *scanner, c int) int {
 	if c <= ' ' && isSpace(rune(c)) {
 		return scanSkipSpace
 	}
+	s.quote = -1
 	switch c {
 	case '{':
 		s.step = stateBeginStringOrIdentifierOrEmpty
@@ -228,6 +232,11 @@ func stateBeginValue(s *scanner, c int) int {
 		return scanBeginArray
 	case '"':
 		s.step = stateInString
+		s.quote = '"'
+		return scanBeginLiteral
+	case '\'':
+		s.step = stateInString
+		s.quote = '\''
 		return scanBeginLiteral
 	case '-':
 		s.step = stateNeg
@@ -287,9 +296,15 @@ func stateBeginStringOrIdentifier(s *scanner, c int) int {
 	if c <= ' ' && isSpace(rune(c)) {
 		return scanSkipSpace
 	}
+	s.quote = -1
 	switch {
 	case c == '"':
 		s.step = stateInString
+		s.quote = '"'
+		return scanBeginLiteral
+	case c == '\'':
+		s.step = stateInString
+		s.quote = '\''
 		return scanBeginLiteral
 	case isIdentifierStart(c):
 		s.step = stateInIdentifier
@@ -366,9 +381,13 @@ func stateEndTop(s *scanner, c int) int {
 
 // stateInString is the state after reading `"`.
 func stateInString(s *scanner, c int) int {
-	if c == '"' {
-		s.step = stateEndValue
-		return scanContinue
+	switch s.quote {
+	case '"', '\'':
+		if c == s.quote {
+			s.step = stateEndValue
+			s.quote = -1
+			return scanContinue
+		}
 	}
 	if c == '\\' {
 		s.step = stateInStringEsc
@@ -383,7 +402,7 @@ func stateInString(s *scanner, c int) int {
 // stateInStringEsc is the state after reading `"\` during a quoted string.
 func stateInStringEsc(s *scanner, c int) int {
 	switch c {
-	case 'b', 'f', 'n', 'r', 't', '\\', '/', '"':
+	case 'b', 'f', 'n', 'r', 't', '\\', '/', '"', '\'':
 		s.step = stateInString
 		return scanContinue
 	}

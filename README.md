@@ -39,7 +39,7 @@ This rule will be relaxed in the future to allow unicode characters, probably fo
         data := []byte(`{
             middle : {
                 src: "pictures/product/123.jpg",
-                place : "#preview-img",
+                place : '#preview-img',                // Added support for JavaScript object parsing
                 title: "title"
             }
         }`)

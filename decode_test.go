@@ -213,6 +213,12 @@ var unmarshalTests = []unmarshalTest{
 	{in: `{"alpha": "abc"}`, ptr: new(U), out: U{Alphabet: "abc"}},
 	{in: `{"alphabet": "xyz"}`, ptr: new(U), out: U{}},
 
+	{in: `{alpha: "value'123"}`, ptr: new(U), out: U{Alphabet: "value'123"}},
+	{in: `{alpha: 'value'}`, ptr: new(U), out: U{Alphabet: "value"}},
+	{in: `{alpha: 'value"123'}`, ptr: new(U), out: U{Alphabet: `value"123`}},
+	{in: `{alpha: 'value\'123'}`, ptr: new(U), out: U{Alphabet: `value'123`}},
+	{in: `{alpha: "value\"123"}`, ptr: new(U), out: U{Alphabet: `value"123`}},
+
 	// syntax errors
 	{in: `{"X": "foo", "Y"}`, err: &SyntaxError{"invalid character '}' after object key", 17}},
 	{in: `[1, 2, 3+]`, err: &SyntaxError{"invalid character '+' after array element", 9}},

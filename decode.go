@@ -668,7 +668,7 @@ func (d *decodeState) literalStore(item []byte, v reflect.Value, fromQuoted bool
 			v.Set(reflect.ValueOf(value))
 		}
 
-	case '"': // string
+	case '"', '\'': // string
 		s, ok := unquoteBytes(item)
 		if !ok {
 			if fromQuoted {
@@ -990,7 +990,16 @@ func unquote(s []byte) (t string, ok bool) {
 }
 
 func unquoteBytes(s []byte) (t []byte, ok bool) {
-	if len(s) < 2 || s[0] != '"' || s[len(s)-1] != '"' {
+	if len(s) < 2 {
+		return
+	}
+	var quote byte
+	switch {
+	case s[0] == '"' && s[len(s)-1] == '"':
+		quote = '"'
+	case s[0] == '\'' && s[len(s)-1] == '\'':
+		quote = '\''
+	default:
 		return
 	}
 	s = s[1 : len(s)-1]
@@ -1001,7 +1010,7 @@ func unquoteBytes(s []byte) (t []byte, ok bool) {
 	r := 0
 	for r < len(s) {
 		c := s[r]
-		if c == '\\' || c == '"' || c < ' ' {
+		if c == '\\' || c == quote || c < ' ' {
 			break
 		}
 		if c < utf8.RuneSelf {
@@ -1084,7 +1093,7 @@ func unquoteBytes(s []byte) (t []byte, ok bool) {
 			}
 
 		// Quote, control characters are invalid.
-		case c == '"', c < ' ':
+		case c == quote, c < ' ':
 			return
 
 		// ASCII

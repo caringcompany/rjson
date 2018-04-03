@@ -6,8 +6,8 @@ package rjson_test
 
 import (
 	"fmt"
-	"io"
 	"github.com/mantyr/rjson"
+	"io"
 	"log"
 	"os"
 	"strings"

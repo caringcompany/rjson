@@ -11,8 +11,8 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
-	"io"
 	"github.com/mantyr/rjson"
+	"io"
 	"os"
 )
 
